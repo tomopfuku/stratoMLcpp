@@ -28,7 +28,7 @@ class Node {
     std::vector<Node *> get_children();
     std::vector<Node *> get_postorder_vector(); 
     std::vector<Node *> get_preorder_vector(); 
-    void add_note(string note);
+    void add_note(std::string note);
     void setBL(double brlen);
 };
 
