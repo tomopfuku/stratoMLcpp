@@ -30,6 +30,7 @@ class Node {
     std::vector<Node *> get_preorder_vector(); 
     void add_note(std::string note);
     void setBL(double brlen);
+    std::string get_newick_repr(bool bl) const;
 };
 
 #endif // NODE_H

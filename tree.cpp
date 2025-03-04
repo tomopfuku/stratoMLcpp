@@ -44,3 +44,8 @@ std::vector<Node *> Tree::get_postorder_vector(bool compute) {
 void Tree::update_root(Node * new_root) {
     root = new_root;
 }
+
+string Tree::get_newick(bool bl) const {
+    string nwk = root->get_newick_repr(bl);
+    return nwk + ";";
+}

@@ -1,6 +1,7 @@
 #include "node.h"
 #include <stack>
 #include <unordered_map>
+#include <sstream>
 
 using namespace std;
 
@@ -90,4 +91,35 @@ vector<Node *> Node::get_preorder_vector() {
 
 void Node::setBL(double brlen) {
     length = brlen;
+}
+
+string Node::get_newick_repr(bool bl) const {
+    if (children.empty()) {
+        return name.empty() ? "Unnamed" : name;
+    }
+
+    stringstream nwk;
+    nwk << "(";
+
+    for (size_t i = 0; i < children.size(); ++i) {
+        nwk << children[i]->get_newick_repr(bl);
+        if (bl == true) {
+            nwk << ":" << children[i]->length;
+        }
+
+        if (i < children.size() - 1) {
+            nwk << ",";
+        }
+    }
+    nwk << ")";
+
+    if (!name.empty()) {
+        nwk << name;
+    }
+
+    if (bl == true) {
+        nwk << ":" << length;
+    }
+
+    return nwk.str();
 }

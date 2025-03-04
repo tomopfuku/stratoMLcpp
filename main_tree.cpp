@@ -43,6 +43,9 @@ int main() {
             cout << "\n" << n->get_name() << "\n";
         }
     }
+    
+
+    cout << "\n" << tree.get_newick(false) << "\n";
 
     return 0;
 }

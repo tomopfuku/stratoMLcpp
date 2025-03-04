@@ -20,6 +20,7 @@ class Tree {
         std::vector<Node *> get_preorder_vector(bool compute);
         std::vector<Node *> get_postorder_vector(bool compute);
         void update_root(Node * new_root);
+        std::string get_newick(bool bl) const;
 };
 
 #endif // SML_TREE_H 
