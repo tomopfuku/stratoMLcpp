@@ -1,8 +1,9 @@
 #ifndef SML_TREE_H
 #define SML_TREE_H
 
-#include "node.h"
 #include <vector>
+
+#include "node.h"
 
 class Tree {
     private: 

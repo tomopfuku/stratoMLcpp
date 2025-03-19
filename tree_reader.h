@@ -8,11 +8,12 @@
 #include "tree.h"
 
 
-class TreeReader {
-public:
-    TreeReader ();
-    Tree read_newick (const std::string& pb);
-};
+//class TreeReader {
+//public:
+//    TreeReader ();
+Tree parse_newick (const std::string& pb);
+Tree DEP_parse_newick (const std::string& pb);
+//};
 
 
 #endif /* SML_TREE_READER_H */

@@ -1,210 +1,106 @@
+//#include <iostream>
 #include <string>
-#include <vector>
-#include <iostream>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <map>
-#include <algorithm>
+#include <stack>
+#include <sstream>
+#include <cctype>
 
 #include "node.h"
 #include "tree.h"
 #include "tree_reader.h"
-//#include "utils.h"
 
-
-TreeReader::TreeReader() = default;
-
-Tree TreeReader::read_newick (const std::string& pb) {
-    //auto * tree = new Tree();
-    //std::string pb = trees;
+Tree parse_newick(const std::string& instr) {
     Tree tree;
-    unsigned int x = 0;
-    char nextChar = pb.at(x);
+    Node* root = nullptr;
+    Node* curnode = nullptr;
     bool start = true;
-    bool keepGoing = true;
-    bool in_quote = false;
-    bool hasAnnotations = false;
-    bool hasInternalNodeNames = false;
-    char quoteType = '\0';
-    Node * currNode = nullptr;
-    double sumEL = 0.0;
-    while (keepGoing) {
-        if (nextChar == '(') {
-            if (start) {
-                //auto * root = new Node();
-                Node root;
-                //Tree tree(&root);
-                tree.update_root(&root);
-                //tree->setRoot(root);
-                currNode = &root;
+    size_t index = 0;
+    char nextchar = instr[index];
+    bool keepgoing = true;
+
+    while (keepgoing) {
+        if (nextchar == '(') {  
+            if (start) {  
+                root = new Node();
+                tree.update_root(root);
+                curnode = root;
                 start = false;
-            } else {
-                if (currNode == nullptr) {
-                    std::cerr << "Malformed newick string. Can read until char " << x << "." << std::endl;
-                    exit(1);
-                }
-                //auto * newNode = new Node(currNode);
-                Node new_node; 
-                //currNode->addChild(*newNode);
-                currNode->insert_child(&new_node);
-                currNode = &new_node;
+            } else {  
+                Node* newnode = new Node();
+                curnode->insert_child(newnode);
+                curnode = newnode;
             }
-        } else if (nextChar == ',') {
-            currNode = currNode->get_parent();
-        } else if (nextChar == ')') {
-            // internal named node (or more likely support annotation)
-            currNode = currNode->get_parent();
-            x++;
-            nextChar = pb.at(x);
-            
-            std::string node_name;
-            bool goingName = true;
-            in_quote = false;
-            if (nextChar == ',' || nextChar == ')' || nextChar == ':'
-                || nextChar == ';' || nextChar == '[') {
-                goingName = false;
-            } else if (nextChar == '"' || nextChar == '\'') {
-                in_quote = true;
-                quoteType = nextChar;
-                node_name += nextChar;
-            }
-            if (!in_quote) {
-                while (goingName) {
-                    node_name += nextChar;
-                    x++;
-                    nextChar = pb.at(x);
-                    if (nextChar == ',' || nextChar == ')' || nextChar == ':'
-                        || nextChar == '[' || nextChar == ';') {
-                        break;
-                    }
-                }
-                x--;
-            } else {
-                x++;
-                nextChar = pb.at(x);
-                while (goingName) {
-                    node_name += nextChar;
-                    x++;
-                    nextChar = pb.at(x);
-                    if (nextChar == quoteType) {
-                        node_name += nextChar;
-                        if (quoteType == '"') {
-                            break;
-                        }
-                        // check for double single quotes
-                        x++;
-                        nextChar = pb.at(x);
-                        if (nextChar != quoteType) {
-                            x--;
-                            break;
-                        }
-                    }
-                } 
-            } // work on edge
-            currNode->update_name(node_name);
-            
-            if (!node_name.empty()) {
-                hasInternalNodeNames = true;
-            }
-            if (!in_quote) {
-                //x--;
-            }
-        } else if (nextChar == ';') {
-            keepGoing = false;
-        } else if (nextChar == ':') {
-            // edge length
-            x++;
-            nextChar = pb.at(x);
-            std::string edgeL;
-            while (true) {
-                edgeL += nextChar;
-                x++;
-                nextChar = pb.at(x);
-                if (nextChar == ',' || nextChar == ')' || nextChar == ':'
-                    || nextChar == ';'|| nextChar == '[') {
-                    break;
-                }
-            } // work on edge
-            double edd = strtod(edgeL.c_str(), nullptr);
-            currNode->setBL(edd);
-            sumEL += edd;
-            x--;
-        }
-        
-        else if (nextChar == '[') {
-            hasAnnotations = true;
-            x++;
-            nextChar = pb.at(x);
+        } else if (nextchar == '[') {  
             std::string note;
-            while (true) {
-                note += nextChar;
-                x++;
-                nextChar = pb.at(x);
-                if (nextChar == ']' ) {
+            index++;
+            nextchar = instr[index];
+
+            while (nextchar != ']') {
+                note += nextchar;
+                index++;
+                nextchar = instr[index];
+            }
+            curnode->add_note(note);
+        } else if (nextchar == ',') {  
+            curnode = curnode->get_parent();
+        } else if (nextchar == ')') {  
+            curnode = curnode->get_parent();
+            index++;
+            nextchar = instr[index];
+            std::string name;
+
+            while (nextchar != ',' && nextchar != ')' && nextchar != ':' &&
+                   nextchar != ';' && nextchar != '[') {
+                name += nextchar;
+                if (index < instr.length() - 1) {
+                    index++;
+                    nextchar = instr[index];
+                } else {
+                    keepgoing = false;
                     break;
                 }
             }
-            currNode->add_note(note);
-        } else if (nextChar == ' ') {
-            // skip whitespace
-        }
-        // external named node
-        else {
-            //auto * newNode = new Node(currNode);
-            Node new_node;
-            currNode->insert_child(&new_node);
-            currNode = &new_node;
-            std::string node_name;
-            bool goingName = true;
-            in_quote = false;
-            if (nextChar == '"' || nextChar == '\'') {
-                in_quote = true;
-                quoteType = nextChar;
-                node_name += nextChar;
+            curnode->update_name(name);
+            index--;
+        } else if (nextchar == ';') {  
+            keepgoing = false;
+            break;
+        } else if (nextchar == ':') {  
+            index++;
+            nextchar = instr[index];
+            std::string brlen;
+
+            while (nextchar != ',' && nextchar != ')' && nextchar != ':' &&
+                   nextchar != ';' && nextchar != '[') {
+                brlen += nextchar;
+                index++;
+                nextchar = instr[index];
             }
-            if (!in_quote) {
-                while (goingName) {
-                    node_name += nextChar;
-                    x++;
-                    nextChar = pb.at(x);
-                    if (nextChar == ',' || nextChar == ')' || nextChar == ':'
-                        || nextChar == '[') {
-                        break;
-                    }
-                }
-                x--;
-            } else {
-                x++;
-                nextChar = pb.at(x);
-                while (goingName) {
-                    node_name += nextChar;
-                    x++;
-                    nextChar = pb.at(x);
-                    if (nextChar == quoteType) {
-                        node_name += nextChar;
-                        if (quoteType == '"') {
-                            break;
-                        }
-                        
-                        x++;
-                        nextChar = pb.at(x);
-                        if (nextChar != quoteType) {
-                            x--;
-                            break;
-                        }
-                    }
-                } 
+            curnode->set_length(std::stod(brlen));
+            index--;
+        } else if (nextchar == ' ') {  
+            index++;
+            nextchar = instr[index];
+        } else {  
+            Node* newnode = new Node();
+            curnode->insert_child(newnode);
+            curnode = newnode;
+            std::string name;
+
+            while (nextchar != ',' && nextchar != ')' && nextchar != ':' &&
+                   nextchar != ';' && nextchar != '[') {
+                name += nextchar;
+                index++;
+                nextchar = instr[index];
             }
-            
-            new_node.update_name(node_name);
+            curnode->update_name(name);
+            index--;
         }
-        if (x < pb.length() - 1) {
-            x++;
+        if (index < instr.length() - 1) {
+            index++;
         }
-        nextChar = pb.at(x);
+        nextchar = instr[index];
     }
-    bool hasEdgeLengths = sumEL > 0.0;
+
     tree.compute_postorder_vector();
     tree.compute_preorder_vector();
     return tree;

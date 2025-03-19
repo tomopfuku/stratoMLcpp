@@ -1,45 +1,40 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+//#include <getopt.h>
+
+#include "tree_reader.h"
+#include "utils.h"
 #include "node.h"
 
 using namespace std;
 
 int main() {
-    Node my_node("sp2");
-    Node par_node;
+    vector<string> lines;
+    lines = readlines("test/test.tre");
+    cout << "\n" << lines.size() << "\n";
+    //cout << lines[0];
+    string nwk = lines[0];
+    Tree tree;
+    cout << nwk << std::endl << "\n";
+    tree = parse_newick(nwk);
+    cout << &tree << "\n";
 
-    par_node.update_name("sp1");
-    par_node.insert_child(&my_node);
-    my_node.get_parent()->update_strat_range(59.4, 56.7);
-    
-    Node desc2("sp3"), desc3("sp4");
-    par_node.insert_child(&desc2);
-    desc2.insert_child(&desc3);
-
-
-    cout << my_node.get_name() << " " << my_node.get_parent()->get_name() << " " << par_node.get_children().size() << "\n";
-
-    vector<Node *> po_nodes; 
-    po_nodes = par_node.get_postorder_vector();
-
-    cout << "\n\nPOSTORDER:\n";
-    
-    for (Node* n : po_nodes) {
-        if (n->get_parent() != nullptr) {
-            cout << "\n" << n->get_name() << " " << n->get_parent()->get_name() << "\n";
+    /*
+    unsigned int count = 0;
+    for (Node* n : tree.get_postorder_vector(false)) {
+        if (n->get_parent() != nullptr ){
+            cout << count << " " << n->get_name() << " " << n->get_parent()->get_name() << " HERE\n";
         } else {
-            cout << "\n" << n->get_name() << "\n";
+            cout << count << " " << n->get_name() << " " << " ROOT\n";
         }
+        count++;
     }
+    */
 
-    cout << "\n\nPREORDER:\n";
+    cout << tree.get_postorder_vector(false).size() << " PO_VEC_SIZE\n";
+    cout << tree.get_newick(false) << std::endl ; 
 
-    vector<Node *> pr_nodes = par_node.get_preorder_vector();
-    for (Node* n : pr_nodes) {
-        if (n->get_parent() != nullptr) {
-            cout << "\n" << n->get_name() << " " << n->get_parent()->get_name() << "\n";
-        } else {
-            cout << "\n" << n->get_name() << "\n";
-        }
-    }
-
+    read_strat_ranges("test/test.strat",tree);
     return 0;
 }

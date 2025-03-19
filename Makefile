@@ -5,8 +5,8 @@ CXXFLAGS = -Wall -Wextra -std=c++17 -MMD -MP
 TARGETS = main_node main_tree 
 
 # Source files
-SRCS1 = main_node.cpp node.cpp
-SRCS2 = main_tree.cpp node.cpp tree.cpp
+SRCS1 = main_node.cpp node.cpp utils.cpp tree.cpp tree_reader.cpp
+SRCS2 = main_tree.cpp node.cpp tree.cpp utils.cpp
 
 # Object files (Replace .cpp with .o)
 OBJS1 = $(SRCS1:.cpp=.o)

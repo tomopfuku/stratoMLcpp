@@ -11,8 +11,10 @@ class Node {
     Node* parent;
     std::vector<Node *> children;
     double length;
+    double height;
     std::vector<double> strat;
     std::string note;
+    bool obs_taxon;
 
   public:
     Node();  
@@ -29,8 +31,10 @@ class Node {
     std::vector<Node *> get_postorder_vector(); 
     std::vector<Node *> get_preorder_vector(); 
     void add_note(std::string note);
-    void setBL(double brlen);
+    void set_length(double brlen);
+    double get_height();
     std::string get_newick_repr(bool bl) const;
+    bool is_obs_taxon();
 };
 
 #endif // NODE_H

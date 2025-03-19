@@ -29,7 +29,6 @@ std::vector<Node *> Tree::get_preorder_vector(bool compute) {
     if (compute) {
         compute_preorder_vector();
     }
-
     return preorder_nodes;
 }
 
@@ -37,7 +36,6 @@ std::vector<Node *> Tree::get_postorder_vector(bool compute) {
     if (compute) {
         compute_postorder_vector();
     }
-
     return postorder_nodes;
 }
 

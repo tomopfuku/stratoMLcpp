@@ -5,9 +5,9 @@
 
 using namespace std;
 
-Node::Node() : name(""), parent(nullptr), length(0.0), note ("") {}
+Node::Node() : name(""), parent(nullptr), length(0.0), height(0.0), note (""), obs_taxon(false) {}
 
-Node::Node(const string& name) : name(name), parent(nullptr), length(0.0), note("") {}
+Node::Node(const string& name) : name(name), parent(nullptr), length(0.0), height(0.0), note(""), obs_taxon(false) {}
 
 Node::~Node() {}
 
@@ -41,7 +41,7 @@ vector<Node *> Node::get_children() {
     return children;
 }
 
-void add_note(string note) {
+void Node::add_note(string note) {
     note = note;
 }
 
@@ -67,10 +67,8 @@ vector<Node *> Node::get_postorder_vector() {
             visited[current] = true;
         }
     }
-
     return postorder_nodes;
 }
-
 
 vector<Node *> Node::get_preorder_vector() {
     vector<Node*> preorder_nodes;
@@ -89,7 +87,7 @@ vector<Node *> Node::get_preorder_vector() {
     return preorder_nodes;
 }
 
-void Node::setBL(double brlen) {
+void Node::set_length(double brlen) {
     length = brlen;
 }
 
@@ -122,4 +120,8 @@ string Node::get_newick_repr(bool bl) const {
     }
 
     return nwk.str();
+}
+
+bool Node::is_obs_taxon() {
+    return obs_taxon;
 }
